@@ -56,15 +56,6 @@ The API runs on port **8001**. For detailed `curl` samples, including persistent
 
 ---
 
-## 🐳 Docker Setup
-
-```bash
-docker-compose up -d
-```
-- **Simple API**: `http://localhost:8001`
-- **OpenAI Compatible API**: `http://localhost:8000`
-
----
 
 ## ⚠️ Performance Note (16GB RAM)
 To ensure stability on 16GB systems, the context window is set to **4096 tokens**. For the best experience on Intel Macs, the `nemo` or `7b` models are recommended.
