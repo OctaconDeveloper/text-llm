@@ -2,12 +2,22 @@ import os
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, Response
+from fastapi.middleware.cors import CORSMiddleware
 from .database import init_db
 from .llm_manager import manager
 from .config import MODEL_ALIASES, MODELS_DIR, BASE_DIR
 from .routes import chat, system
 
 app = FastAPI(title="Suggy AI Text Model API")
+
+# Add CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Favicon handler
 @app.get("/favicon.ico", include_in_schema=False)
