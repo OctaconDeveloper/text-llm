@@ -38,6 +38,19 @@ async def validation_exception_handler(request, exc):
         },
     )
 
+# Global Catch-all Error Handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    print(f"\n[CRITICAL] Unhandled Error: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "message": "An unexpected internal error occurred.",
+            "details": str(exc)
+        },
+    )
+
 # Favicon handler
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
