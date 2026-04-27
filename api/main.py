@@ -1,7 +1,8 @@
 import os
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import FileResponse, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse, Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from .database import init_db
 from .llm_manager import manager
@@ -18,6 +19,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Custom Validation Error Handler
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    error_details = []
+    for error in exc.errors():
+        field = " -> ".join([str(loc) for loc in error["loc"][1:]])
+        message = error["msg"]
+        error_details.append(f"Field '{field}': {message}")
+    
+    return JSONResponse(
+        status_code=400,
+        content={
+            "status": "error",
+            "message": "Invalid request parameters provided.",
+            "issues": error_details
+        },
+    )
 
 # Favicon handler
 @app.get("/favicon.ico", include_in_schema=False)
