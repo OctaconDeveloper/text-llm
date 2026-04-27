@@ -10,6 +10,8 @@ router = APIRouter()
 
 @router.post("/chat")
 async def chat(request: ChatRequest):
+    print(f"\n[CHAT] Request received. Session: {request.session_id}")
+    print(f"[CHAT] Message: {request.message[:50]}...")
     # 1. Build Base System Prompt
     base_prompt = DEFAULT_SYSTEM_PROMPT
     if request.system_prompt:
@@ -63,6 +65,8 @@ async def chat(request: ChatRequest):
                 if not available: raise HTTPException(status_code=503, detail="No models found.")
                 requested_model = os.path.basename(available[0])
 
+    print(f"[CHAT] Using model: {requested_model}")
+
     # 4. Load Model if switched
     if requested_model != current_model:
         try:
@@ -87,6 +91,7 @@ async def chat(request: ChatRequest):
         messages.append({"role": "user", "content": request.message})
 
         # 6. Generate Response
+        print(f"[CHAT] Starting generation (max_tokens: {request.max_tokens})...")
         response = llm.create_chat_completion(
             messages=messages, 
             temperature=request.temperature, 
@@ -94,6 +99,7 @@ async def chat(request: ChatRequest):
             max_tokens=request.max_tokens
         )
         reply = response["choices"][0]["message"]["content"]
+        print(f"[CHAT] Generation finished. Tokens: {response['usage']['total_tokens']}")
         
         # 7. Persistence
         if request.session_id:

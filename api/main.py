@@ -1,12 +1,21 @@
 import os
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import FileResponse, Response
 from .database import init_db
 from .llm_manager import manager
-from .config import MODEL_ALIASES, MODELS_DIR
+from .config import MODEL_ALIASES, MODELS_DIR, BASE_DIR
 from .routes import chat, system
 
 app = FastAPI(title="Suggy AI Text Model API")
+
+# Favicon handler
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    file_path = os.path.join(BASE_DIR, "static", "favicon.ico")
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    return Response(status_code=204)
 
 # Include Routers
 app.include_router(chat.router, prefix="/api")
