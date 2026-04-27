@@ -30,7 +30,7 @@ class ChatRequest(BaseModel):
     system_prompt: Optional[str] = None
     temperature: float = 1.0
     repeat_penalty: float = 1.1
-    max_tokens: int = 512
+    max_tokens: int = 200
 
 class ChatResponse(BaseModel):
     session_id: Optional[str]
