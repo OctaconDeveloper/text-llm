@@ -3,22 +3,22 @@ import argparse
 from huggingface_hub import hf_hub_download
 
 MODELS = {
-    "1": {
+    "smol": {
         "name": "SmolLM2-1.7B (Uncensored/Fastest)",
         "repo": "mradermacher/SmolLM2-1.7B-Instruct-abliterated-GGUF",
         "file": "SmolLM2-1.7B-Instruct-abliterated.Q4_K_M.gguf"
     },
-    "2": {
+    "7b": {
         "name": "Dolphin-2.9.3-7B (Uncensored/Balanced)",
         "repo": "mradermacher/dolphin-2.9.3-mistral-7B-32k-GGUF",
         "file": "dolphin-2.9.3-mistral-7B-32k.Q4_K_M.gguf"
     },
-    "3": {
+    "nemo": {
         "name": "Dolphin-2.9.3-Nemo-12B (Uncensored/Smart)",
         "repo": "dphn/dolphin-2.9.3-mistral-nemo-12b-gguf",
         "file": "dolphin-2.9.3-mistral-nemo-12b.Q4_K_M.gguf"
     },
-    "4": {
+    "slimaki": {
         "name": "Slimaki-24B (Uncensored/Largest)",
         "repo": "mradermacher/Slimaki-24B-v1.2-GGUF",
         "file": "Slimaki-24B-v1.2.Q3_K_M.gguf"
@@ -27,8 +27,8 @@ MODELS = {
 
 LOCAL_DIR = "models"
 
-def download(model_id):
-    model = MODELS[model_id]
+def download(model_alias):
+    model = MODELS[model_alias]
     print(f"\n--- Downloading {model['name']} ---")
     os.makedirs(LOCAL_DIR, exist_ok=True)
     try:
@@ -47,27 +47,47 @@ def download(model_id):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--id", help="Model ID to download (1-4)")
+    parser.add_argument("--alias", help="Model alias to download (smol, 7b, nemo, slimaki)")
+    parser.add_argument("--all", action="store_true", help="Download all available models")
     args = parser.parse_args()
 
-    if args.id:
-        if args.id in MODELS:
-            download(args.id)
+    # Filter out models that already exist
+    pending_models = {}
+    for alias, m in MODELS.items():
+        if not os.path.exists(os.path.join(LOCAL_DIR, m["file"])):
+            pending_models[alias] = m
+
+    if args.all:
+        if not pending_models:
+            print("\nAll uncensored models are already downloaded!")
         else:
-            print("Invalid ID.")
+            for alias in pending_models:
+                download(alias)
+        return
+
+    if args.alias:
+        if args.alias in MODELS:
+            download(args.alias)
+        else:
+            print(f"Invalid alias. Choose from: {', '.join(MODELS.keys())}")
+        return
+
+    if not pending_models:
+        print("\nAll uncensored models are already downloaded!")
+        return
+
+    print("\nAvailable Uncensored Models (Not yet downloaded):")
+    for alias, m in pending_models.items():
+        print(f"- {alias}: {m['name']}")
+    
+    choice = input("\nEnter alias to download (or 'all'): ").strip().lower()
+    if choice == 'all':
+        for alias in pending_models:
+            download(alias)
+    elif choice in pending_models:
+        download(choice)
     else:
-        print("\nAvailable Uncensored Models:")
-        for key, m in MODELS.items():
-            print(f"{key}: {m['name']}")
-        
-        choice = input("\nEnter ID to download (or 'all'): ").strip().lower()
-        if choice == 'all':
-            for key in MODELS:
-                download(key)
-        elif choice in MODELS:
-            download(choice)
-        else:
-            print("Invalid choice.")
+        print("Invalid choice or model already exists.")
 
 if __name__ == "__main__":
     main()

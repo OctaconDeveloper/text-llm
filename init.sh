@@ -14,7 +14,8 @@ fi
 source venv/bin/activate
 
 echo "[2/4] Installing/Updating dependencies..."
-pip install --upgrade pip
+# pip install --upgrade pip
+pip install -r requirements.txt
 pip install "llama-cpp-python[server]" huggingface-hub fastapi uvicorn
 
 # 2. Model Management

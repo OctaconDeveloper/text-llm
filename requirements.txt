@@ -2,3 +2,9 @@ fastapi
 uvicorn
 llama-cpp-python[server]
 huggingface-hub
+aiosqlite
+redis
+fastapi-limiter
+gunicorn
+python-json-logger
+python-dotenv

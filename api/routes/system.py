@@ -1,12 +1,13 @@
 import os
 import glob
-from fastapi import APIRouter
-from ..config import MODELS_DIR, PROFILES_DIR, MODEL_ALIASES, MODEL_DESCRIPTIONS, N_CTX, N_THREADS
+from fastapi import APIRouter, Depends
+from ..limiter import RateLimiter
+from ..config import MODELS_DIR, PROFILES_DIR, MODEL_ALIASES, MODEL_DESCRIPTIONS, N_CTX, N_THREADS, DEFAULT_RATE_LIMIT
 from ..llm_manager import manager
 
 router = APIRouter()
 
-@router.get("/health")
+@router.get("/health", dependencies=[Depends(RateLimiter(times=int(DEFAULT_RATE_LIMIT.split('/')[0]), seconds=60))])
 async def health():
     files = glob.glob(os.path.join(MODELS_DIR, "*.gguf"))
     available_models = [os.path.basename(f) for f in files if "active_model.gguf" not in f]
@@ -37,7 +38,7 @@ async def health():
         "n_threads": N_THREADS
     }
 
-@router.get("/models")
+@router.get("/models", dependencies=[Depends(RateLimiter(times=int(DEFAULT_RATE_LIMIT.split('/')[0]), seconds=60))])
 async def list_models():
     files = glob.glob(os.path.join(MODELS_DIR, "*.gguf"))
     return {
@@ -45,7 +46,7 @@ async def list_models():
         "current_model": manager.get_current_model()
     }
 
-@router.get("/profiles")
+@router.get("/profiles", dependencies=[Depends(RateLimiter(times=int(DEFAULT_RATE_LIMIT.split('/')[0]), seconds=60))])
 async def list_profiles():
     files = glob.glob(os.path.join(PROFILES_DIR, "*.txt"))
     return {"available_profiles": [os.path.basename(f).replace(".txt", "") for f in files]}

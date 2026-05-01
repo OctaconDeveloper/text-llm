@@ -1,61 +1,71 @@
-# 🚀 Suggy AI Text Model
+# 🚀 Suggy AI Text Model API (Production Grade)
 
-A modular, high-performance setup for running uncensored LLMs on your Mac. Features persistent SQLite sessions, advanced persona customization, and an auto-reloading modular API.
+A high-performance, production-ready API wrapper for running uncensored LLMs. Optimized for scalability, persistence, and deep character immersion.
 
 ---
 
-## ⚡ Quick Start
+## ✨ Features
+- **Production Architecture**: Built with FastAPI, Uvicorn, and Gunicorn for high-concurrency handling.
+- **Persistent Memory**: SQLite (WAL mode) for long-term conversation history and user profiles.
+- **Speed & Efficiency**: Redis-backed caching and rate limiting (using `pyrate-limiter` 4.x).
+- **Security**: Mandatory `m-api-key` header verification for all POST requests.
+- **Dynamic Personas**: Deep trait injection for realistic roleplay (Identity, Personality, Physicality).
+- **Containerized**: Full Docker and Docker Compose support for instant deployment.
 
-The easiest way to start is using the unified start script:
+---
+
+## 🛠️ Quick Start (Automated)
+
+The unified setup script handles dependency installation, database initialization, and model downloads:
 
 ```bash
-bash start.sh
+bash setup.sh
 ```
-*This will automatically set up the environment (if needed) and launch the API server on port 8001.*
 
 ---
 
-## 🎭 Advanced Persona Customization
+## 🐳 Docker Deployment (Recommended)
 
-Suggy AI allows you to build deep, realistic characters by passing specific attributes in your API requests. The model will automatically embody the traits you define.
+Start the entire stack (API + Redis) in detached mode:
 
-**Available Attributes:**
-- **Identity**: `name`, `ethnicity`, `ageRange`
-- **Personality**: `personality`, `background`, `style`
-- **Physical Traits**: `bodyType`, `breastStyle`, `hairStyle`, `hairColor`, `eyeColor`
+```bash
+docker-compose up --build -d
+```
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/chat` | Main generation endpoint with session and persona support. |
+| `POST` | `/api/profiles` | Create a persistent persona profile. |
+| `GET` | `/api/health` | Simple health check for monitoring/load balancers. |
+| `GET` | `/api/status` | Detailed system status, loaded models, and settings. |
+
+**Security Note**: All `POST` requests require the `m-api-key` header defined in your `.env`.
 
 ---
 
 ## 📂 Project Structure
 
-- **`api/`**: Core modular application logic (FastAPI).
-- **`profiles/`**: Text files defining different persona profiles.
-- **`models/`**: Folder where `.gguf` model files are stored.
-- **`sessions.db`**: SQLite database for persistent conversation memory.
-- **`start.sh`**: The one-click startup script.
-- **`download_model.py`**: Script to download new model variants.
+- **`api/`**: Core modular application logic.
+- **`models/`**: Storage for `.gguf` weight files.
+- **`profiles/`**: Persistent character definitions.
+- **`sessions.db`**: SQLite database for conversation history.
+- **`setup.sh`**: One-click environment preparation.
+- **`docker-compose.yml`**: Full orchestration for API and Redis.
 
 ---
 
-## 🔓 Uncensored Model Lineup
-
-| Alias | Model Name | Description |
-| :--- | :--- | :--- |
-| `smol` | SmolLM2-1.7B-Abliterated | **Fastest**: Near-instant on CPU. |
-| `7b` | Dolphin-2.9.3-Mistral-7B | **Balanced**: Great logic and speed. |
-| `nemo` | Dolphin-2.9.3-Nemo-12B | **Smartest (Default)**: Best for complex chats. |
-| `slimaki` | Slimaki-24B-v1.2 | **Largest**: Most complex thoughts (Slow). |
+## 🔐 Configuration (`.env`)
+Manage your environment variables in the `.env` file:
+- `API_KEYS`: Comma-separated list of valid security keys.
+- `REDIS_URL`: Connection string for the Redis instance.
+- `DEFAULT_MODEL`: The alias to load on startup.
 
 ---
 
-## 📡 API Usage
-
-The API runs on port **8001**. For detailed `curl` samples, including persistent sessions and the new persona attributes, see:
-
+## 🎭 Documentation
+For detailed `curl` examples and persona attribute guides:
 👉 **[examples.md](examples.md)**
-
----
-
-
-## ⚠️ Performance Note (16GB RAM)
-To ensure stability on 16GB systems, the context window is set to **4096 tokens**. For the best experience on Intel Macs, the `nemo` or `7b` models are recommended.
