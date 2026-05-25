@@ -6,7 +6,8 @@ venv/
 .venv/
 env/
 .env
-
+craft.md
+cmd.md
 # Models
 models/*.gguf
 
